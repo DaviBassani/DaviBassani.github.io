@@ -2,15 +2,15 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong Extreme: Interface Estilo Arcade!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pong Extreme: Controles Touch e Histórico Local!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         body {
             font-family: 'Press Start 2P', cursive;
-            background-color: #0c0c0c; /* Fundo ainda mais escuro */
-            color: #e0e0e0; /* Cinza claro para texto geral */
+            background-color: #0c0c0c; 
+            color: #e0e0e0; 
             display: flex;
             flex-direction: column; 
             align-items: center; 
@@ -18,7 +18,8 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            padding: 15px;
+            padding: 0; /* Removido padding do body para controle total do layout */
+            position: relative; /* Para posicionamento absoluto dos botões touch */
         }
 
         /* --- Telas --- */
@@ -33,10 +34,13 @@
             position: absolute; 
             top: 0; left: 0;
             background-color: rgba(12, 12, 12, 0.97); 
+            padding: 15px; /* Adicionado padding aqui */
+            box-sizing: border-box;
         }
         #gameScreen { 
              background-color: transparent; 
              position: relative; 
+             /* Padding será ajustado dinamicamente para controles touch */
         }
 
         #startMenu.active-screen,
@@ -51,8 +55,9 @@
         }
         
         #gameScreen.active-screen {
-            flex-direction: row; 
-            gap: 20px;
+            flex-direction: column; /* Alterado para coluna para acomodar placar e canvas + botões */
+            justify-content: flex-start; /* Alinha ao topo para botões embaixo */
+            gap: 0px; /* Removido gap para controle manual */
             z-index: 1; 
         }
         #pauseScreen, #nameInputScreen {
@@ -62,42 +67,42 @@
 
         /* --- Estilo Arcade para Menus e Contêineres --- */
         .menu-container, .controls-display-container, .pause-container, .name-input-container, .history-container { 
-            background-color: #1a1a1a; /* Um pouco mais claro que o body */
-            padding: 35px 45px; /* Aumentado padding */
-            border-radius: 0px; /* Cantos retos */
-            box-shadow: 0 0 0 3px #ff9900, 0 0 0 6px #1a1a1a, 0 0 0 9px #ff9900; /* Borda dupla laranja/preto */
-            border: 3px solid #333; /* Borda interna escura */
+            background-color: #1a1a1a; 
+            padding: 30px 40px; 
+            border-radius: 0px; 
+            box-shadow: 0 0 0 3px #ff9900, 0 0 0 6px #1a1a1a, 0 0 0 9px #ff9900; 
+            border: 3px solid #333; 
             max-width: 90%;
             max-height: 90vh; 
             overflow-y: auto; 
         }
         .game-title {
-            font-size: 3em; /* Maior */
+            font-size: 2.8em; /* Ajustado */
             color: #ffcc00;
-            margin-bottom: 40px; /* Mais espaço */
-            text-shadow: 4px 4px 0px #cc0000, 6px 6px 0px #660000; /* Sombra mais pronunciada */
+            margin-bottom: 35px; 
+            text-shadow: 4px 4px 0px #cc0000, 6px 6px 0px #660000; 
             letter-spacing: 2px;
         }
          .screen-title { 
-            font-size: 2.2em; /* Maior */
-            color: #ff9900; /* Laranja arcade */
-            margin-bottom: 30px;
-            text-transform: uppercase; /* Estilo arcade */
+            font-size: 2em; 
+            color: #ff9900; 
+            margin-bottom: 25px;
+            text-transform: uppercase; 
             border-bottom: 3px dashed #555;
             padding-bottom: 10px;
         }
         .menu-button, .action-button { 
             font-family: 'Press Start 2P', cursive;
             background-color: #333; 
-            color: #ffcc00; /* Amarelo arcade */
-            padding: 18px 35px; /* Maior */
-            margin: 12px;
-            border: 3px solid #ffcc00; /* Borda amarela */
-            border-radius: 0px; /* Cantos retos */
-            font-size: 1.3em; /* Maior */
+            color: #ffcc00; 
+            padding: 15px 30px; 
+            margin: 10px;
+            border: 3px solid #ffcc00; 
+            border-radius: 0px; 
+            font-size: 1.1em; /* Ajustado */
             cursor: pointer;
             transition: background-color 0.2s, color 0.2s, transform 0.1s;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 3px 3px 0px #111; /* Sombra interna e externa */
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 3px 3px 0px #111; 
             text-transform: uppercase;
         }
         .menu-button:hover, .action-button:hover {
@@ -114,7 +119,7 @@
         .input-field {
             font-family: 'Press Start 2P', cursive;
             padding: 12px;
-            margin: 10px 0 20px 0; /* Mais margem inferior */
+            margin: 10px 0 20px 0; 
             border: 3px solid #ff9900;
             background-color: #111;
             color: #e0e0e0;
@@ -130,14 +135,14 @@
             max-height: 55vh;
             overflow-y: auto;
             text-align: left;
-            font-size: 0.85em; /* Um pouco maior */
+            font-size: 0.80em; /* Reduzido para caber mais */
             border: 2px dashed #ff9900;
             padding: 15px;
             background-color: #0a0a0a;
             margin-bottom: 20px;
         }
         .history-list li {
-            padding: 10px 8px;
+            padding: 8px 5px; /* Reduzido padding */
             border-bottom: 2px solid #444;
             color: #ccc;
         }
@@ -160,26 +165,32 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; 
+            justify-content: flex-start; /* Alinha ao topo para canvas */
+            width: 100%;
+            flex-grow: 1; /* Ocupa o espaço disponível */
+            padding-top: 10px; /* Espaço para o placar */
         }
 
         #gameCanvas {
-            border: 4px solid #fff; /* Borda mais grossa */
+            border: 4px solid #fff; 
             background-color: #000000;
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); /* Sombra ciano */
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); 
             image-rendering: pixelated;
-            border-radius: 0px; /* Cantos retos */
+            border-radius: 0px; 
+            /* Tamanho definido por JS */
         }
 
         .score-board {
-            font-size: 2.5em; /* Maior */
-            margin-bottom: 20px; 
-            color: #00ff00; /* Verde neon */
-            text-shadow: 2px 2px 0px #006400; /* Sombra verde escura */
+            font-size: 2em; /* Reduzido um pouco para telas menores */
+            margin-bottom: 10px; 
+            color: #00ff00; 
+            text-shadow: 2px 2px 0px #006400; 
             background-color: #111;
-            padding: 5px 15px;
+            padding: 3px 10px; /* Reduzido padding */
             border: 2px solid #00ff00;
             border-radius: 0;
+            position: relative; /* Para não ser sobreposto pelos botões */
+            z-index: 5;
         }
 
         #messageBox {
@@ -188,18 +199,82 @@
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(10,10,10,0.92); 
-            color: #ffff00; /* Amarelo para mensagens */
-            padding: 12px 22px; 
+            color: #ffff00; 
+            padding: 10px 20px; 
             border-radius: 0px; 
-            font-size: 1.1em; 
+            font-size: 1em; 
             text-align: center;
             z-index: 100;
             display: none; 
             border: 3px solid #ffff00;
             box-shadow: 0 0 10px #ffff00;
-            min-width: 300px; 
+            min-width: 280px; 
             max-width: 60%; 
         }
+
+        /* --- Controles Touch --- */
+        .touch-controls-container {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 15; /* Acima do jogo, abaixo de menus de overlay */
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .touch-controls-container.single-player {
+            display: flex;
+            justify-content: space-around; /* Espaça os dois botões */
+            align-items: center;
+            height: 100px; /* Altura fixa para a área dos botões */
+            background-color: rgba(0,0,0,0.5);
+        }
+        .touch-controls-container.multi-player {
+            display: block; /* Será usado para posicionar os botões laterais */
+            height: 100%; /* Ocupa toda altura para posicionar botões laterais */
+            pointer-events: none; /* Container não bloqueia toques no canvas */
+        }
+
+        .touch-button {
+            font-family: 'Press Start 2P', cursive;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 3px solid #fff;
+            color: #fff;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            user-select: none; /* Evita seleção de texto */
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            cursor: pointer;
+            box-shadow: 2px 2px 0px #555;
+            pointer-events: auto; /* Botões devem receber eventos */
+        }
+        .touch-button:active {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #333;
+        }
+        
+        .touch-controls-left, .touch-controls-right {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none; /* Escondido por padrão, mostrado por JS */
+            flex-direction: column;
+            gap: 15px; /* Espaço entre botões cima/baixo */
+            z-index: 15;
+            pointer-events: auto;
+        }
+        .touch-controls-left { left: 15px; }
+        .touch-controls-right { right: 15px; }
+
+
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     </style>
 </head>
@@ -283,12 +358,20 @@
     </div>
     <div id="messageBox"></div>
 
-    <script type="module">
-        // Importações do Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <div id="touchControlsContainer" class="touch-controls-container">
+        </div>
+    <div id="touchControlsLeft" class="touch-controls-left">
+        <button id="p1UpBtn" class="touch-button">↑ J1</button>
+        <button id="p1DownBtn" class="touch-button">↓ J1</button>
+    </div>
+    <div id="touchControlsRight" class="touch-controls-right">
+        <button id="p2UpBtn" class="touch-button">↑ J2</button>
+        <button id="p2DownBtn" class="touch-button">↓ J2</button>
+    </div>
 
+
+    <script>
+        // Removidas importações do Firebase e lógica relacionada
         const canvas = document.getElementById('gameCanvas');
         const context = canvas.getContext('2d');
         const messageBox = document.getElementById('messageBox');
@@ -319,64 +402,20 @@
         const historyList = document.getElementById('historyList');
         const loadingHistoryMsg = document.getElementById('loadingHistoryMsg');
 
+        // Controles Touch
+        const touchControlsContainer = document.getElementById('touchControlsContainer');
+        const touchControlsLeft = document.getElementById('touchControlsLeft');
+        const touchControlsRight = document.getElementById('touchControlsRight');
+        const p1UpBtn = document.getElementById('p1UpBtn');
+        const p1DownBtn = document.getElementById('p1DownBtn');
+        const p2UpBtn = document.getElementById('p2UpBtn');
+        const p2DownBtn = document.getElementById('p2DownBtn');
+
 
         let currentScreen = 'startMenu'; 
         let gameMode = 'pvp'; 
         let isPaused = false;
-
-        // --- Configurações do Firebase ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO_KEY", authDomain: "DEMO.firebaseapp.com", projectId: "DEMO_PROJECT" }; // Fallback para demo
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pong-extreme-default';
-        
-        let app, db, auth, userId;
-
-        async function initializeFirebase() {
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                // setLogLevel('debug'); // Descomente para logs detalhados do Firestore durante o desenvolvimento
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        console.log("Utilizador autenticado:", userId);
-                    } else {
-                        console.log("Nenhum utilizador autenticado, tentando login anônimo ou com token.");
-                        try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                                console.log("Tentando login com token customizado.");
-                                await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                console.log("Tentando login anônimo.");
-                                await signInAnonymously(auth);
-                            }
-                            userId = auth.currentUser?.uid || `anon-${crypto.randomUUID()}`; // Atualiza userId após tentativa
-                        } catch (error) {
-                            console.error("Erro na autenticação secundária:", error);
-                            userId = `anon-${crypto.randomUUID()}`; 
-                        }
-                    }
-                });
-                if (auth.currentUser) {
-                    userId = auth.currentUser.uid;
-                } else if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token).catch(e => console.error("Falha no login com token inicial:", e));
-                    userId = auth.currentUser?.uid;
-                } else {
-                    await signInAnonymously(auth).catch(e => console.error("Falha no login anônimo inicial:", e));
-                    userId = auth.currentUser?.uid;
-                }
-                if (!userId) userId = `anon-${crypto.randomUUID()}`; 
-                console.log("Firebase App ID:", appId, "User ID:", userId);
-
-            } catch (error) {
-                console.error("Erro ao inicializar Firebase:", error);
-                userId = `local-${crypto.randomUUID()}`; 
-            }
-        }
-        initializeFirebase();
-
+        let isMobileLayout = false;
 
         const PADDLE_WIDTH = 10;
         let NORMAL_PADDLE_HEIGHT = 80; 
@@ -480,6 +519,7 @@
             historyScreen.classList.remove('active-screen');
             document.getElementById(sId).classList.add('active-screen');currentScreen=sId.replace('Screen','');
             if (sId === 'gameScreen' && isPaused) togglePauseGame(); 
+            setupTouchControls(); // Configura os controles touch sempre que uma tela é mostrada
         }
 
         navigateToModeSelectBtn.addEventListener('click',()=>{playButtonClickSound();showScreen('modeSelectionScreen')});
@@ -503,24 +543,119 @@
             powerUpItems = []; 
             lastPowerUpSpawnTime=Date.now();gameRunning=true;goalInProgress=false;isPaused=false;
             ball.speedMultiplier=1;ball.isZigzagging=false;ball.zigzagTimer=0;ball.isPowered=false;
-            resizeCanvas();
+            resizeCanvasAndControls(); // Chamada unificada
             if(messageBox.timeoutId)clearTimeout(messageBox.timeoutId);messageBox.style.display='none';
             if(animationFrameId)cancelAnimationFrame(animationFrameId);lastTime=performance.now();gameLoop(lastTime)
         }
+        
+        function detectMobileLayout() {
+            // Considera mobile se a largura for menor que 768px OU se for um dispositivo touch primário
+            // A verificação de 'pointer: coarse' é mais robusta para tablets.
+            const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+            isMobileLayout = window.innerWidth < 768 || (isTouchDevice && window.innerWidth < 1024);
+            return isMobileLayout;
+        }
 
-        function resizeCanvas(){
-            const aR=16/9;const gSW=gameScreen.offsetWidth;const gSH=gameScreen.offsetHeight;let nCW=gSW*0.9;let nCH=nCW/aR;
-            const sB=document.querySelector('.score-board');const sBH=sB?sB.offsetHeight:0;const sBMB=sB?parseFloat(getComputedStyle(sB).marginBottom):0;
-            const mCH=gSH-sBH-sBMB-30;if(nCH>mCH){nCH=mCH;nCW=nCH*aR}
-            const minW=280;const minH=minW/aR;if(nCW<minW){nCW=minW;nCH=minH}
-            if(nCH<minH&&mCH>=minH){nCH=minH;nCW=nCH*aR;if(nCW>gSW*0.9){nCW=gSW*0.9;nCH=nCW/aR}}
+        function setupTouchControls() {
+            const mainGameAreaDiv = document.getElementById('main-game-area');
+            const gameScreenDiv = document.getElementById('gameScreen');
+
+            if (currentScreen === 'game' && detectMobileLayout()) {
+                touchControlsContainer.innerHTML = ''; // Limpa botões antigos
+                touchControlsLeft.style.display = 'none';
+                touchControlsRight.style.display = 'none';
+
+                if (gameMode === 'pvc') { // J1 vs COM - Botões na parte inferior
+                    touchControlsContainer.className = 'touch-controls-container single-player'; // Garante a classe correta
+                    touchControlsContainer.style.display = 'flex';
+                    
+                    const p1Up = document.createElement('button');
+                    p1Up.className = 'touch-button';
+                    p1Up.textContent = '↑';
+                    p1Up.addEventListener('touchstart', (e) => { e.preventDefault(); keysPressed['w'] = true; handleInput();});
+                    p1Up.addEventListener('touchend', (e) => { e.preventDefault(); keysPressed['w'] = false; handleInput();});
+                    p1Up.addEventListener('mousedown', (e) => { e.preventDefault(); keysPressed['w'] = true; handleInput();}); // Para testes no desktop
+                    p1Up.addEventListener('mouseup', (e) => { e.preventDefault(); keysPressed['w'] = false; handleInput();});
+
+                    const p1Down = document.createElement('button');
+                    p1Down.className = 'touch-button';
+                    p1Down.textContent = '↓';
+                    p1Down.addEventListener('touchstart', (e) => { e.preventDefault(); keysPressed['s'] = true; handleInput();});
+                    p1Down.addEventListener('touchend', (e) => { e.preventDefault(); keysPressed['s'] = false; handleInput();});
+                    p1Down.addEventListener('mousedown', (e) => { e.preventDefault(); keysPressed['s'] = true; handleInput();});
+                    p1Down.addEventListener('mouseup', (e) => { e.preventDefault(); keysPressed['s'] = false; handleInput();});
+
+                    touchControlsContainer.appendChild(p1Up);
+                    touchControlsContainer.appendChild(p1Down);
+                    mainGameAreaDiv.style.paddingBottom = '110px'; // Espaço para os botões inferiores
+                    gameScreenDiv.style.flexDirection = 'column'; // Garante que o canvas fica acima dos botões
+
+                } else { // J1 vs J2 - Botões nas laterais
+                    touchControlsContainer.className = 'touch-controls-container multi-player';
+                    touchControlsContainer.style.display = 'block'; // Container principal não precisa de flex aqui
+                    touchControlsLeft.style.display = 'flex';
+                    touchControlsRight.style.display = 'flex';
+                    mainGameAreaDiv.style.paddingBottom = '0px';
+                    mainGameAreaDiv.style.paddingLeft = '100px'; // Espaço para botões esquerdos
+                    mainGameAreaDiv.style.paddingRight = '100px'; // Espaço para botões direitos
+                    gameScreenDiv.style.flexDirection = 'row'; // Canvas no centro
+                }
+            } else {
+                touchControlsContainer.style.display = 'none';
+                touchControlsLeft.style.display = 'none';
+                touchControlsRight.style.display = 'none';
+                mainGameAreaDiv.style.paddingBottom = '0px';
+                mainGameAreaDiv.style.paddingLeft = '0px';
+                mainGameAreaDiv.style.paddingRight = '0px';
+            }
+        }
+
+
+        function resizeCanvasAndControls(){ // Renomeada e ajustada
+            setupTouchControls(); // Configura os botões antes de calcular o tamanho do canvas
+
+            const mainGameAreaDiv = document.getElementById('main-game-area');
+            const scoreBoardDiv = document.querySelector('.score-board');
+            
+            let availableWidth = mainGameAreaDiv.offsetWidth;
+            let availableHeight = mainGameAreaDiv.offsetHeight;
+
+            if (scoreBoardDiv) {
+                availableHeight -= (scoreBoardDiv.offsetHeight + parseFloat(getComputedStyle(scoreBoardDiv).marginBottom));
+            }
+
+            // Subtrai o espaço dos controles touch, se ativos
+            if (isMobileLayout && currentScreen === 'game') {
+                if (gameMode === 'pvc') { // Controles na parte inferior
+                    availableHeight -= 110; // Altura dos botões + padding
+                } else { // Controles nas laterais
+                    availableWidth -= 200; // Largura dos botões laterais + paddings
+                }
+            }
+            availableWidth = Math.max(0, availableWidth);
+            availableHeight = Math.max(0, availableHeight);
+
+            const aspectRatio = 16/9;
+            let nCW = availableWidth * 0.98; // Usar quase toda a largura disponível
+            let nCH = nCW / aspectRatio;
+
+            if (nCH > availableHeight * 0.98) {
+                nCH = availableHeight * 0.98;
+                nCW = nCH * aspectRatio;
+            }
+            
+            const minW=200; const minH=minW/aspectRatio; // Reduzido minWidth para telas muito pequenas
+            if(nCW<minW){nCW=minW;nCH=minH}
+            if(nCH<minH && availableHeight >= minH){nCH=minH;nCW=nCH*aspectRatio;if(nCW>availableWidth*0.98){nCW=availableWidth*0.98;nCH=nCW/aspectRatio}}
+            
             canvas.width=Math.max(0,Math.floor(nCW));canvas.height=Math.max(0,Math.floor(nCH));
-            NORMAL_PADDLE_HEIGHT=Math.max(50,Math.min(100,canvas.height*NORMAL_PADDLE_HEIGHT_RATIO));
+            NORMAL_PADDLE_HEIGHT=Math.max(40,Math.min(100,canvas.height*NORMAL_PADDLE_HEIGHT_RATIO)); // Mínimo menor
             [player1,player2].forEach(p=>{p.originalHeight=NORMAL_PADDLE_HEIGHT;if(p.activeEffect.type!=='grown'&&p.activeEffect.type!=='shrunk'){p.currentHeight=p.originalHeight}else{const f=p.activeEffect.type==='grown'?PADDLE_GROW_FACTOR:PADDLE_SHRINK_FACTOR;p.currentHeight=p.originalHeight*f;}});
             player1.y=canvas.height/2-player1.currentHeight/2;player2.x=canvas.width-PADDLE_WIDTH-10;player2.y=canvas.height/2-player2.currentHeight/2;
             if(gameRunning&&canvas.width>0&&canvas.height>0&&!goalInProgress&&!isPaused)resetBall(null)
         }
-        window.addEventListener('resize',()=>{if(currentScreen==='game'&&!isPaused)resizeCanvas()});
+        window.addEventListener('resize',()=>{if(currentScreen==='game'&&!isPaused)resizeCanvasAndControls()});
+
 
         function drawRect(x,y,w,h,c){context.fillStyle=c;context.fillRect(x,y,w,h)}
         function drawCircle(x,y,r,c){context.fillStyle=c;context.beginPath();context.arc(x,y,r,0,Math.PI*2,false);context.fill()}
@@ -681,8 +816,13 @@
 
         function handleInput(){
             if(isPaused || currentScreen !== 'game') return;
-            if(keysPressed['w']||keysPressed['W'])player1.dy=-PADDLE_SPEED;else if(keysPressed['s']||keysPressed['S'])player1.dy=PADDLE_SPEED;else player1.dy=0;
-            if(gameMode==='pvp'){if(keysPressed['ArrowUp'])player2.dy=-PADDLE_SPEED;else if(keysPressed['ArrowDown'])player2.dy=PADDLE_SPEED;else player2.dy=0;}
+            // Teclado sempre ativo
+            if(keysPressed['w']||keysPressed['W'])player1.dy=-PADDLE_SPEED;else if(keysPressed['s']||keysPressed['S'])player1.dy=PADDLE_SPEED;else if(!isMobileLayout || gameMode === 'pvp') player1.dy=0; // Só para se não for mobile PVC
+            
+            if(gameMode==='pvp'){
+                if(keysPressed['ArrowUp'])player2.dy=-PADDLE_SPEED;else if(keysPressed['ArrowDown'])player2.dy=PADDLE_SPEED;else if(!isMobileLayout) player2.dy=0; // Só para se não for mobile
+            }
+            // Controles touch já modificam keysPressed diretamente
         }
 
         function togglePauseGame(isExiting = false) {
@@ -780,13 +920,11 @@
             }
         }
 
-        async function saveMatchData() {
-            if (!db || !userId) {
-                showMessage("Erro: Não foi possível conectar ao histórico.", 2000);
-                setTimeout(() => showScreen('startMenu'), 2000);
-                return;
-            }
+        // --- localStorage para Histórico ---
+        const HISTORY_KEY = 'pongExtremeMatchHistory';
+        const MAX_HISTORY_ITEMS = 20;
 
+        async function saveMatchData() { // Async não é mais necessário, mas mantido por consistência
             const p1Name = player1NameInput.value.trim() || "J1";
             const p2Name = gameMode === 'pvc' ? "COM" : (player2NameInput.value.trim() || "J2");
 
@@ -796,55 +934,47 @@
                 player2Name: p2Name,
                 player2Score: player2Score,
                 gameMode: gameMode,
-                timestamp: serverTimestamp() 
+                timestamp: new Date().toISOString() 
             };
 
             try {
-                // Caminho da coleção: /artifacts/{appId}/users/{userId}/pongMatches
-                const matchesCollectionRef = collection(db, "artifacts", appId, "users", userId, "pongMatches");
-                const docRef = await addDoc(matchesCollectionRef, matchData);
-                console.log("Partida salva com ID: ", docRef.id);
-                showMessage("Partida salva no histórico!", 2000);
+                let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+                history.unshift(matchData); // Adiciona no início (mais recente)
+                if (history.length > MAX_HISTORY_ITEMS) {
+                    history = history.slice(0, MAX_HISTORY_ITEMS); // Mantém apenas os últimos X
+                }
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+                showMessage("Partida salva no histórico local!", 2000);
             } catch (e) {
-                console.error("Erro ao salvar partida: ", e);
+                console.error("Erro ao salvar partida no localStorage: ", e);
                 showMessage("Erro ao salvar. Tente novamente.", 2000);
             } finally {
                 setTimeout(() => showScreen('startMenu'), 2000); 
             }
         }
 
-        async function loadAndShowHistory() {
+        async function loadAndShowHistory() { // Async não é mais necessário
             showScreen('historyScreen');
             historyList.innerHTML = ''; 
             loadingHistoryMsg.style.display = 'block';
 
-            if (!db || !userId) {
-                const li = document.createElement('li');
-                li.textContent = "Erro: Histórico indisponível. Verifique a conexão ou tente mais tarde.";
-                historyList.appendChild(li);
-                loadingHistoryMsg.style.display = 'none';
-                return;
-            }
-
             try {
-                const q = query(collection(db, "artifacts", appId, "users", userId, "pongMatches"), orderBy("timestamp", "desc"), limit(20));
-                const querySnapshot = await getDocs(q);
+                const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
                 
-                if (querySnapshot.empty) {
+                if (history.empty || history.length === 0) {
                     const li = document.createElement('li');
                     li.textContent = "Nenhuma partida registrada ainda.";
                     historyList.appendChild(li);
                 } else {
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
+                    history.forEach((data) => { // Já está ordenado ao salvar
                         const li = document.createElement('li');
-                        const date = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString('pt-BR') : 'Data indisponível';
+                        const date = data.timestamp ? new Date(data.timestamp).toLocaleString('pt-BR') : 'Data indisponível';
                         li.textContent = `(${data.gameMode.toUpperCase()}) ${data.player1Name}: ${data.player1Score} vs ${data.player2Name}: ${data.player2Score} - ${date}`;
                         historyList.appendChild(li);
                     });
                 }
             } catch (e) {
-                console.error("Erro ao carregar histórico: ", e);
+                console.error("Erro ao carregar histórico do localStorage: ", e);
                 const li = document.createElement('li');
                 li.textContent = "Erro ao carregar o histórico.";
                 historyList.appendChild(li);
@@ -852,6 +982,26 @@
                 loadingHistoryMsg.style.display = 'none';
             }
         }
+
+        // --- Inicialização dos Controles Touch ---
+        p1UpBtn.addEventListener('touchstart', (e) => { e.preventDefault(); keysPressed['w'] = true; handleInput();});
+        p1UpBtn.addEventListener('touchend', (e) => { e.preventDefault(); keysPressed['w'] = false; handleInput();});
+        p1DownBtn.addEventListener('touchstart', (e) => { e.preventDefault(); keysPressed['s'] = true; handleInput();});
+        p1DownBtn.addEventListener('touchend', (e) => { e.preventDefault(); keysPressed['s'] = false; handleInput();});
+        
+        p2UpBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowUp'] = true; handleInput();});
+        p2UpBtn.addEventListener('touchend', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowUp'] = false; handleInput();});
+        p2DownBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowDown'] = true; handleInput();});
+        p2DownBtn.addEventListener('touchend', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowDown'] = false; handleInput();});
+        // Fallback para mouse para testes no desktop
+        p1UpBtn.addEventListener('mousedown', (e) => { e.preventDefault(); keysPressed['w'] = true; handleInput();});
+        p1UpBtn.addEventListener('mouseup', (e) => { e.preventDefault(); keysPressed['w'] = false; handleInput();});
+        p1DownBtn.addEventListener('mousedown', (e) => { e.preventDefault(); keysPressed['s'] = true; handleInput();});
+        p1DownBtn.addEventListener('mouseup', (e) => { e.preventDefault(); keysPressed['s'] = false; handleInput();});
+        p2UpBtn.addEventListener('mousedown', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowUp'] = true; handleInput();});
+        p2UpBtn.addEventListener('mouseup', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowUp'] = false; handleInput();});
+        p2DownBtn.addEventListener('mousedown', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowDown'] = true; handleInput();});
+        p2DownBtn.addEventListener('mouseup', (e) => { e.preventDefault(); if(gameMode === 'pvp') keysPressed['ArrowDown'] = false; handleInput();});
 
 
         showScreen('startMenu'); 
